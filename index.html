@@ -1,0 +1,1094 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1"
+>
+
+<title>XOD // AGENTE ÉLITE</title>
+
+<style>
+
+:root{
+  --bg:#050913;
+  --panel:#091426;
+  --panel2:#0d1a30;
+  --line:#1d4775;
+  --blue:#4db8ff;
+  --cyan:#63ddff;
+  --green:#55ee8a;
+  --yellow:#ffd166;
+  --red:#ff6262;
+  --text:#dcecff;
+  --muted:#8fa6c2;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top,#0b1830 0,#050913 45%);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Arial,sans-serif;
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:20;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:16px 20px;
+
+  background:rgba(3,7,18,.95);
+  border-bottom:1px solid var(--line);
+}
+
+.logo{
+  font-size:23px;
+  font-weight:900;
+  letter-spacing:3px;
+}
+
+.logo span{
+  color:var(--blue);
+}
+
+.status{
+  color:var(--green);
+  font-size:13px;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  margin-bottom:18px;
+  padding:20px;
+
+  background:linear-gradient(
+    180deg,
+    rgba(14,29,53,.95),
+    rgba(7,18,34,.95)
+  );
+
+  border:1px solid var(--line);
+  border-radius:24px;
+
+  box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+
+h2{
+  margin:0 0 12px;
+  font-size:18px;
+  color:#cbeaff;
+}
+
+p{
+  color:var(--muted);
+  line-height:1.45;
+}
+
+textarea,
+input{
+  width:100%;
+  padding:15px;
+
+  color:white;
+  background:#061020;
+
+  border:1px solid #28507d;
+  border-radius:15px;
+
+  outline:none;
+  font-size:15px;
+}
+
+textarea{
+  min-height:130px;
+  resize:vertical;
+}
+
+button{
+  padding:13px 18px;
+  margin:5px 3px;
+
+  border:1px solid #31608f;
+  border-radius:15px;
+
+  background:#102747;
+  color:white;
+
+  font-weight:700;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#17375e;
+}
+
+.green{
+  background:#087c50;
+}
+
+.red{
+  background:#8c2935;
+}
+
+.blue{
+  background:#124f88;
+}
+
+.yellow{
+  background:#755b0b;
+}
+
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:12px;
+}
+
+.console{
+  min-height:150px;
+  max-height:350px;
+  overflow:auto;
+
+  padding:15px;
+
+  background:#020711;
+  border:1px solid #173a61;
+  border-radius:16px;
+
+  font-family:monospace;
+  white-space:pre-wrap;
+  line-height:1.5;
+}
+
+.user{
+  color:#77caff;
+}
+
+.xod{
+  color:#69f29c;
+}
+
+.error{
+  color:#ff7c7c;
+}
+
+.small{
+  font-size:12px;
+  color:#7890ad;
+}
+
+.voiceStatus{
+  margin-top:12px;
+  color:var(--yellow);
+}
+
+footer{
+  text-align:center;
+  padding:25px;
+  color:#657d9a;
+  font-size:12px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+<span>XOD</span> // AGENTE ÉLITE
+</div>
+
+<div class="status" id="systemStatus">
+● LISTO
+</div>
+
+</header>
+
+
+<div class="container">
+
+<!-- ===================================== -->
+<!-- CONSOLA XOD -->
+<!-- ===================================== -->
+
+<section class="card">
+
+<h2>🤖 XOD / JARVIS</h2>
+
+<p>
+Ingresá una instrucción o utilizá el reconocimiento de voz.
+</p>
+
+<textarea
+  id="command"
+  placeholder="Ej: XOD, analizar estado del sistema..."
+></textarea>
+
+<div class="row">
+
+<button
+  class="green"
+  onclick="sendCommand()"
+>
+⚡ EJECUTAR
+</button>
+
+<button
+  class="blue"
+  onclick="startVoice()"
+>
+🎙 HABLAR
+</button>
+
+<button
+  onclick="stopVoice()"
+>
+🔇 DETENER VOZ
+</button>
+
+<button
+  class="red"
+  onclick="clearConsole()"
+>
+LIMPIAR
+</button>
+
+</div>
+
+<div
+  class="voiceStatus"
+  id="voiceStatus"
+>
+Micrófono: esperando
+</div>
+
+</section>
+
+
+<!-- ===================================== -->
+<!-- RESPUESTA -->
+<!-- ===================================== -->
+
+<section class="card">
+
+<h2>🧠 CONSOLA DEL AGENTE</h2>
+
+<div
+  class="console"
+  id="console"
+>XOD inicializado.
+Esperando instrucciones...</div>
+
+</section>
+
+
+<!-- ===================================== -->
+<!-- NOTAS -->
+<!-- ===================================== -->
+
+<section class="card">
+
+<h2>📝 MEMORIA LOCAL / NOTAS</h2>
+
+<textarea
+  id="notes"
+  placeholder="Notas de XOD..."
+></textarea>
+
+<div class="row">
+
+<button onclick="saveNotes()">
+Guardar
+</button>
+
+<button onclick="exportNotes()">
+Exportar .txt
+</button>
+
+<button
+  class="red"
+  onclick="clearNotes()"
+>
+Limpiar
+</button>
+
+</div>
+
+</section>
+
+
+<!-- ===================================== -->
+<!-- BACKEND -->
+<!-- ===================================== -->
+
+<section class="card">
+
+<h2>🌐 NÚCLEO IA / BACKEND</h2>
+
+<p>
+Ingresá la URL HTTPS del backend XOD.
+</p>
+
+<input
+  id="endpoint"
+  type="url"
+  placeholder="https://TU-BACKEND/xod/chat"
+>
+
+<div class="row">
+
+<button onclick="saveEndpoint()">
+Guardar endpoint
+</button>
+
+<button
+  class="green"
+  onclick="testAI()"
+>
+Probar IA
+</button>
+
+<button
+  class="red"
+  onclick="disconnectBackend()"
+>
+Desconectar
+</button>
+
+</div>
+
+<p id="backendStatus">
+IA: modo local
+</p>
+
+</section>
+
+
+<!-- ===================================== -->
+<!-- DIAGNÓSTICO -->
+<!-- ===================================== -->
+
+<section class="card">
+
+<h2>🔧 DIAGNÓSTICO XOD</h2>
+
+<div id="diagnostic">
+
+Javascript: verificando...<br>
+Backend: verificando...<br>
+Voz: verificando...
+
+</div>
+
+<button onclick="diagnostic()">
+Ejecutar diagnóstico
+</button>
+
+</section>
+
+
+<!-- ===================================== -->
+<!-- COMANDOS -->
+<!-- ===================================== -->
+
+<section class="card">
+
+<h2>🎙 COMANDOS DE VOZ</h2>
+
+<p>
+
+“XOD modo nota”<br>
+
+“XOD modo agente”<br>
+
+“XOD estado”<br>
+
+“qué hora es”<br>
+
+“XOD silencio”<br>
+
+“XOD activar voz”
+
+</p>
+
+</section>
+
+</div>
+
+
+<footer>
+
+XOD V3 • AGENTE ÉLITE<br>
+Voz + memoria + backend + IA + comandos
+
+</footer>
+
+
+<script>
+
+/* =====================================================
+   XOD AGENTE ÉLITE
+   FRONTEND V3
+===================================================== */
+
+let recognition = null;
+let listening = false;
+
+const consoleBox =
+  document.getElementById("console");
+
+const commandBox =
+  document.getElementById("command");
+
+const notesBox =
+  document.getElementById("notes");
+
+const endpointBox =
+  document.getElementById("endpoint");
+
+
+/* =====================================================
+   LOG
+===================================================== */
+
+function log(text,type="xod"){
+
+  const line =
+    document.createElement("div");
+
+  line.className = type;
+
+  line.textContent = text;
+
+  consoleBox.appendChild(line);
+
+  consoleBox.scrollTop =
+    consoleBox.scrollHeight;
+}
+
+
+/* =====================================================
+   ENDPOINT
+===================================================== */
+
+function loadEndpoint(){
+
+  const ep =
+    localStorage.getItem("xod_endpoint");
+
+  if(ep){
+
+    endpointBox.value = ep;
+
+    document.getElementById(
+      "backendStatus"
+    ).textContent =
+      "IA: endpoint configurado";
+
+  }
+
+}
+
+
+function saveEndpoint(){
+
+  const ep =
+    endpointBox.value.trim();
+
+  if(!ep){
+
+    alert(
+      "Ingresá la URL del backend."
+    );
+
+    return;
+  }
+
+  if(!ep.startsWith("https://") &&
+     !ep.startsWith("http://localhost")){
+
+    alert(
+      "El backend debe utilizar HTTPS."
+    );
+
+    return;
+  }
+
+  localStorage.setItem(
+    "xod_endpoint",
+    ep
+  );
+
+  document.getElementById(
+    "backendStatus"
+  ).textContent =
+    "IA: endpoint guardado";
+
+  log(
+    "XOD: backend configurado."
+  );
+
+}
+
+
+function disconnectBackend(){
+
+  localStorage.removeItem(
+    "xod_endpoint"
+  );
+
+  endpointBox.value="";
+
+  document.getElementById(
+    "backendStatus"
+  ).textContent =
+    "IA: modo local";
+
+}
+
+
+/* =====================================================
+   ENVIAR A BACKEND
+===================================================== */
+
+async function sendCommand(){
+
+  const message =
+    commandBox.value.trim();
+
+  if(!message){
+    return;
+  }
+
+  log(
+    "TÚ > " + message,
+    "user"
+  );
+
+  commandBox.value="";
+
+  const endpoint =
+    localStorage.getItem(
+      "xod_endpoint"
+    );
+
+  if(!endpoint){
+
+    localResponse(message);
+
+    return;
+  }
+
+  document.getElementById(
+    "systemStatus"
+  ).textContent =
+    "● PROCESANDO";
+
+  try{
+
+    const response =
+      await fetch(
+        endpoint,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+            "application/json"
+          },
+
+          body:JSON.stringify({
+            message:message,
+            source:"xod-web",
+            timestamp:
+              new Date().toISOString()
+          })
+        }
+      );
+
+    if(!response.ok){
+
+      throw new Error(
+        "HTTP " + response.status
+      );
+
+    }
+
+    const data =
+      await response.json();
+
+    const reply =
+      data.reply ||
+      "Sin respuesta.";
+
+    log(
+      "XOD > " + reply,
+      "xod"
+    );
+
+    speak(reply);
+
+  }catch(error){
+
+    log(
+      "ERROR > " +
+      error.message,
+      "error"
+    );
+
+  }
+
+  document.getElementById(
+    "systemStatus"
+  ).textContent =
+    "● LISTO";
+
+}
+
+
+/* =====================================================
+   MODO LOCAL
+===================================================== */
+
+function localResponse(message){
+
+  const text =
+    message.toLowerCase();
+
+  let reply;
+
+  if(
+    text.includes("hora")
+  ){
+
+    reply =
+      "Son las " +
+      new Date()
+      .toLocaleTimeString(
+        "es-AR"
+      );
+
+  }
+
+  else if(
+    text.includes("estado")
+  ){
+
+    reply =
+      "XOD operativo en modo local.";
+
+  }
+
+  else if(
+    text.includes("modo nota")
+  ){
+
+    reply =
+      "Modo nota activado.";
+
+  }
+
+  else{
+
+    reply =
+      "Recibí la instrucción. " +
+      "Para inteligencia remota conectá el backend XOD.";
+
+  }
+
+  log(
+    "XOD > " + reply
+  );
+
+  speak(reply);
+
+}
+
+
+/* =====================================================
+   TEST IA
+===================================================== */
+
+async function testAI(){
+
+  commandBox.value =
+    "XOD responde solamente: conexión IA operativa.";
+
+  await sendCommand();
+
+}
+
+
+/* =====================================================
+   VOZ
+===================================================== */
+
+function setupVoice(){
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
+
+    document.getElementById(
+      "voiceStatus"
+    ).textContent =
+      "Reconocimiento de voz no disponible.";
+
+    return;
+
+  }
+
+  recognition =
+    new SpeechRecognition();
+
+  recognition.lang =
+    "es-AR";
+
+  recognition.continuous =
+    false;
+
+  recognition.interimResults =
+    false;
+
+
+  recognition.onstart =
+    function(){
+
+      listening=true;
+
+      document.getElementById(
+        "voiceStatus"
+      ).textContent =
+        "🎙 Escuchando...";
+
+    };
+
+
+  recognition.onresult =
+    function(event){
+
+      const text =
+        event.results[0][0]
+        .transcript;
+
+      commandBox.value =
+        text;
+
+      document.getElementById(
+        "voiceStatus"
+      ).textContent =
+        "Reconocido: " + text;
+
+      sendCommand();
+
+    };
+
+
+  recognition.onerror =
+    function(event){
+
+      document.getElementById(
+        "voiceStatus"
+      ).textContent =
+        "Error de micrófono: " +
+        event.error;
+
+    };
+
+
+  recognition.onend =
+    function(){
+
+      listening=false;
+
+    };
+
+}
+
+
+function startVoice(){
+
+  if(!recognition){
+
+    setupVoice();
+
+  }
+
+  if(!recognition){
+
+    alert(
+      "El navegador no permite reconocimiento de voz."
+    );
+
+    return;
+
+  }
+
+  try{
+
+    recognition.start();
+
+  }catch(e){
+
+    console.log(e);
+
+  }
+
+}
+
+
+function stopVoice(){
+
+  if(recognition){
+
+    recognition.stop();
+
+  }
+
+}
+
+
+/* =====================================================
+   VOZ XOD
+===================================================== */
+
+function speak(text){
+
+  if(
+    !("speechSynthesis" in window)
+  ){
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const utterance =
+    new SpeechSynthesisUtterance(
+      text
+    );
+
+  utterance.lang =
+    "es-AR";
+
+  utterance.rate =
+    1;
+
+  speechSynthesis.speak(
+    utterance
+  );
+
+}
+
+
+/* =====================================================
+   NOTAS
+===================================================== */
+
+function loadNotes(){
+
+  notesBox.value =
+    localStorage.getItem(
+      "xod_notes"
+    ) || "";
+
+}
+
+
+function saveNotes(){
+
+  localStorage.setItem(
+    "xod_notes",
+    notesBox.value
+  );
+
+  log(
+    "XOD: notas guardadas."
+  );
+
+}
+
+
+function clearNotes(){
+
+  if(
+    !confirm(
+      "¿Eliminar las notas?"
+    )
+  ){
+    return;
+  }
+
+  notesBox.value="";
+
+  localStorage.removeItem(
+    "xod_notes"
+  );
+
+}
+
+
+function exportNotes(){
+
+  const blob =
+    new Blob(
+      [notesBox.value],
+      {
+        type:"text/plain"
+      }
+    );
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+  const a =
+    document.createElement("a");
+
+  a.href=url;
+
+  a.download=
+    "XOD_NOTAS.txt";
+
+  a.click();
+
+  URL.revokeObjectURL(
+    url
+  );
+
+}
+
+
+/* =====================================================
+   CONSOLA
+===================================================== */
+
+function clearConsole(){
+
+  consoleBox.textContent =
+    "XOD consola reiniciada.";
+
+}
+
+
+/* =====================================================
+   DIAGNÓSTICO
+===================================================== */
+
+function diagnostic(){
+
+  let html="";
+
+  html +=
+    "Javascript: OK<br>";
+
+  html +=
+    "LocalStorage: " +
+    (
+      typeof localStorage !==
+      "undefined"
+      ? "OK"
+      : "NO"
+    ) +
+    "<br>";
+
+  html +=
+    "SpeechRecognition: " +
+    (
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition
+      ? "DISPONIBLE"
+      : "NO DISPONIBLE"
+    ) +
+    "<br>";
+
+  html +=
+    "SpeechSynthesis: " +
+    (
+      "speechSynthesis" in window
+      ? "OK"
+      : "NO"
+    ) +
+    "<br>";
+
+  const ep =
+    localStorage.getItem(
+      "xod_endpoint"
+    );
+
+  html +=
+    "Backend: " +
+    (
+      ep
+      ? ep
+      : "NO CONFIGURADO"
+    );
+
+  document.getElementById(
+    "diagnostic"
+  ).innerHTML=html;
+
+}
+
+
+/* =====================================================
+   ENTER
+===================================================== */
+
+commandBox.addEventListener(
+  "keydown",
+  function(event){
+
+    if(
+      event.key==="Enter" &&
+      !event.shiftKey
+    ){
+
+      event.preventDefault();
+
+      sendCommand();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+loadEndpoint();
+
+loadNotes();
+
+setupVoice();
+
+diagnostic();
+
+</script>
+
+</body>
+</html>
